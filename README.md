@@ -1,4 +1,4 @@
-# 🤖 AI/ML Fake News Detection Web App
+# 🤖 AI Fake News Detection Web App
 
 An **AI/ML-based web application** that uses **Natural Language Processing (NLP)** and **Machine Learning** to classify whether a news headline or article appears **FAKE** or **REAL**.
 
