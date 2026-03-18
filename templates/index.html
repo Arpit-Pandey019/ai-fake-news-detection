@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Fake News Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h1>AI Fake News Detection</h1>
+        <p class="subtitle">Paste a news headline or article text below to check whether it is FAKE or REAL.</p>
+
+        <form method="POST">
+            <textarea 
+                name="news_text" 
+                placeholder="Enter news text here..."
+                required
+            >{{ user_text }}</textarea>
+
+            <button type="submit">Check News</button>
+        </form>
+
+        {% if prediction %}
+            <div class="result 
+                {% if prediction == 'FAKE NEWS' %}
+                    fake
+                {% elif prediction == 'REAL NEWS' %}
+                    real
+                {% else %}
+                    warning
+                {% endif %}
+            ">
+                {{ prediction }}
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>
