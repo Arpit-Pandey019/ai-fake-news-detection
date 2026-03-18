@@ -1,63 +1,65 @@
 from flask import Flask, render_template, request
-import pickle
+import pandas as pd
 import re
 import string
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
 
 app = Flask(__name__)
 
-
-# -------------------------------
-# Load Model and Vectorizer
-# -------------------------------
-with open("model.pkl", "rb") as model_file:
-    model = pickle.load(model_file)
-
-with open("vectorizer.pkl", "rb") as vectorizer_file:
-    vectorizer = pickle.load(vectorizer_file)
-
-
-# -------------------------------
-# Text Cleaning Function
-# -------------------------------
+# Clean text function
 def clean_text(text):
     text = text.lower()
-    text = re.sub(r'\[.*?\]', '', text)
-    text = re.sub(r'https?://\S+|www\.\S+', '', text)
-    text = re.sub(r'<.*?>+', '', text)
-    text = re.sub(r'[%s]' % re.escape(string.punctuation), '', text)
-    text = re.sub(r'\n', ' ', text)
-    text = re.sub(r'\w*\d\w*', '', text)
+    text = re.sub(r"http\S+|www\S+|https\S+", "", text)
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    text = re.sub(r'\d+', '', text)
     return text
 
+# Load dataset
+df = pd.read_csv("fake_news_dataset.csv")
 
-# -------------------------------
-# Home Route
-# -------------------------------
+# Clean dataset text
+df['text'] = df['text'].fillna("").apply(clean_text)
+
+# Features and labels
+X = df['text']
+y = df['label']
+
+# Convert labels if needed (FAKE = 0, REAL = 1)
+if y.dtype == object:
+    y = y.str.upper().map({'FAKE': 0, 'REAL': 1})
+
+# Better vectorizer
+vectorizer = TfidfVectorizer(stop_words='english', max_features=5000, ngram_range=(1,2))
+X_vectorized = vectorizer.fit_transform(X)
+
+# Better model
+model = LogisticRegression(max_iter=1000)
+model.fit(X_vectorized, y)
+
 @app.route("/", methods=["GET", "POST"])
 def home():
-    prediction = None
-    user_text = ""
+    prediction = ""
+    confidence = ""
 
     if request.method == "POST":
-        user_text = request.form.get("news_text", "")
+        news = request.form["news"]
 
-        if user_text.strip():
-            cleaned_text = clean_text(user_text)
-            vectorized_text = vectorizer.transform([cleaned_text])
-            result = model.predict(vectorized_text)[0]
+        # Clean user input before prediction
+        cleaned_news = clean_text(news)
+        input_data = vectorizer.transform([cleaned_news])
 
-            if result == "FAKE":
-                prediction = "FAKE NEWS"
-            else:
-                prediction = "REAL NEWS"
+        pred = model.predict(input_data)[0]
+        probs = model.predict_proba(input_data)[0]
+
+        if pred == 1:
+            prediction = "REAL NEWS"
+            confidence = f"Confidence: {probs[1] * 100:.2f}%"
         else:
-            prediction = "Please enter some news text."
+            prediction = "FAKE NEWS"
+            confidence = f"Confidence: {probs[0] * 100:.2f}%"
 
-    return render_template("index.html", prediction=prediction, user_text=user_text)
+    return render_template("index.html", prediction=prediction, confidence=confidence)
 
-
-# -------------------------------
-# Run App
-# -------------------------------
 if __name__ == "__main__":
     app.run(debug=True)
