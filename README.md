@@ -1,105 +1,88 @@
-# 🤖 AI Fake News Detection Web App
+# 📰 AI Fake News Detection using Machine Learning and NLP
 
-An **AI/ML-based web application** that uses **Natural Language Processing (NLP)** and **Machine Learning** to classify whether a news headline or article appears **FAKE** or **REAL**.
+A web-based **AI/ML project** that predicts whether a news headline or article is **Fake** or **Real** using **Natural Language Processing (NLP)** and **Machine Learning** techniques.
 
-This project demonstrates how **Artificial Intelligence + Machine Learning** can be applied to solve a real-world problem like **fake news detection** through text classification.
-
-> ⚠️ **Important:** This is an **ML-based text classification project**, not a live fact-checking system. It predicts based on learned text patterns from historical data and does not verify current real-world events from the internet.
+This project is built using **Python, Flask, Pandas, Scikit-learn, and TF-IDF Vectorization**, and is deployed live on **Render**.
 
 ---
 
-# 🚀 Live Demo
+## 🚀 Live Demo
 
-🔗 **Live App:** https://ai-fake-news-detection-4.onrender.com
+🔗 **Live Project:** https://ai-fake-news-detection-5.onrender.com
 
----
-
-# 📌 Project Overview
-
-Fake news is a major challenge in the digital era.  
-This project uses **AI/ML techniques** to analyze the text of a news headline or article and predict whether it is likely to be **FAKE** or **REAL**.
-
-The system is built using:
-
-- **Artificial Intelligence concepts**
-- **Machine Learning classification**
-- **Natural Language Processing (NLP)**
-- **Flask web deployment**
-
-This project is designed to showcase an **end-to-end AIML workflow**:
-
-- Data handling
-- Text preprocessing
-- Feature extraction
-- Model training
-- Prediction
-- Web deployment
+🔗 **GitHub Repository:** https://github.com/Arpit-Pandey019/ai-fake-news-detection
 
 ---
 
-# 🧠 AIML Concepts Used
+## 📌 Project Overview
 
-This project includes the following **AI/ML concepts**:
+Fake news spreads rapidly on digital platforms and can mislead people with false or manipulated information.  
+This project aims to build a simple **Fake News Detection System** that can classify news text as **Fake** or **Real** using **Machine Learning and NLP**.
 
-- **Natural Language Processing (NLP)**
-- **Text Classification**
-- **Supervised Machine Learning**
-- **Feature Extraction using TF-IDF / Vectorization**
-- **Binary Classification**
-- **Model Inference**
-- **Web Deployment of ML Models**
+The system takes a user-input news headline or article, preprocesses the text, converts it into numerical features using **TF-IDF Vectorization**, and then predicts the result using a trained **Machine Learning classification model**.
 
 ---
 
-# ✨ Features
+## 🎯 Features
 
-- ✅ AI/ML-powered fake news prediction
-- ✅ Accepts custom news headlines or article text
-- ✅ Classifies input as **FAKE** or **REAL**
-- ✅ Built with **Python, Flask, Scikit-learn**
-- ✅ Uses **NLP-based text processing**
-- ✅ Deployed live on **Render**
-- ✅ Simple and user-friendly web interface
-
----
-
-# 🛠️ Tech Stack
-
-## **Programming Language**
-- Python
-
-## **AI / Machine Learning**
-- Scikit-learn
-- Pandas
-- NumPy
-
-## **NLP / Text Processing**
-- TF-IDF Vectorization / Text Feature Extraction
-- Text preprocessing pipeline
-
-## **Web Development**
-- Flask
-- HTML
-- CSS
-
-## **Deployment**
-- Render
-- GitHub
+- Detects whether a news headline/article is **Fake** or **Real**
+- Built using **Machine Learning + NLP**
+- Text preprocessing and cleaning
+- TF-IDF feature extraction
+- Flask-based web interface
+- User-friendly UI with HTML + CSS
+- Live deployment on Render
 
 ---
 
-# 📂 Project Structure
+## 🧠 AI/ML & NLP Concepts Used
+
+This project demonstrates the practical use of **Artificial Intelligence, Machine Learning, and Natural Language Processing**.
+
+### ✅ Natural Language Processing (NLP)
+NLP is used to process and clean raw text before giving it to the ML model.
+
+**NLP tasks used in this project:**
+- Convert text to lowercase
+- Remove special characters and punctuation
+- Remove unwanted spaces
+- Clean user input for better model performance
+
+### ✅ Machine Learning (ML)
+After preprocessing, the text is converted into numerical form using **TF-IDF Vectorization**.
+
+Then a **Machine Learning classification model** is trained on labeled news data:
+- **REAL**
+- **FAKE**
+
+The model learns patterns from the dataset and predicts the class of new input text.
+
+### ✅ TF-IDF Vectorization
+TF-IDF converts text into numerical vectors so that the ML model can understand and classify text.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Python**
+- **Flask**
+- **Pandas**
+- **Scikit-learn**
+- **HTML**
+- **CSS**
+- **Render** (Deployment)
+
+---
+
+## 📂 Project Structure
 
 ```bash
 AI Fake News Detection/
 │── app.py
-│── requirements.txt
-│── runtime.txt
 │── fake_news_dataset.csv
-│── README.md
-│
-├── templates/
+│── requirements.txt
+│── templates/
 │   └── index.html
-│
-└── static/
-    └── style.css
+│── static/
+│   └── style.css
+│── README.md
