@@ -59,13 +59,20 @@ model.fit(X_train_vect, y_train)
 @app.route("/", methods=["GET", "POST"])
 def home():
     prediction = None
+    confidence = None
+
     if request.method == "POST":
         news = request.form["news"]
         cleaned_news = clean_text(news)
         news_vect = vectorizer.transform([cleaned_news])
+
         pred = model.predict(news_vect)[0]
+        proba = model.predict_proba(news_vect)[0]
+
         prediction = "REAL NEWS" if pred == 1 else "FAKE NEWS"
-    return render_template("index.html", prediction=prediction)
+        confidence = round(max(proba) * 100, 2)
+
+    return render_template("index.html", prediction=prediction, confidence=confidence)
 
 if __name__ == "__main__":
     app.run(debug=True)
