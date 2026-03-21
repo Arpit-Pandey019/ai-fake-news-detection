@@ -1,26 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Fake News Detection</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Fake News Detection</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>AI Fake News Detection</h1>
-        <p>Paste a news headline or article text below to check whether it is FAKE or REAL.</p>
+<div class="container">
+    <h1>AI Fake News Detection</h1>
+    <form method="POST">
+        <textarea name="news" rows="6" placeholder="Paste news here..." required></textarea>
+        <button type="submit">Check News</button>
+    </form>
 
-        <form method="POST">
-            <textarea name="news" rows="6" placeholder="Enter news text here..." required></textarea>
-            <br>
-            <button type="submit">Check News</button>
-        </form>
-
-        {% if prediction %}
-            <h2>{{ prediction }}</h2>
-            <p>{{ confidence }}</p>
-        {% endif %}
+    {% if prediction %}
+    <div class="result">
+        <h2>Prediction: {{ prediction }}</h2>
+        <p>Confidence: {{ confidence }}%</p>
     </div>
+    {% endif %}
+</div>
 </body>
 </html>
