@@ -7,30 +7,25 @@ from sklearn.linear_model import LogisticRegression
 
 app = Flask(__name__)
 
-# ---------------------------
-# Text cleaning function
-# ---------------------------
 def clean_text(text):
     text = str(text).lower()
     text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return text
 
-# ---------------------------
 # Load dataset
-# ---------------------------
 df = pd.read_csv("news.csv")
 
-# Make sure missing values don't break
+# Fill missing values
 df['title'] = df['title'].fillna("")
 df['text'] = df['text'].fillna("")
 
 # Combine title + text
 df['text'] = (df['title'] + " " + df['text']).apply(clean_text)
 
-# Handle label safely
+# Clean labels
 df['label'] = df['label'].astype(str).str.strip().str.upper()
 
-# Convert labels
+# Convert labels safely
 df['label'] = df['label'].replace({
     'FAKE': 0,
     'REAL': 1,
@@ -38,48 +33,38 @@ df['label'] = df['label'].replace({
     '1': 1
 })
 
-# Remove invalid labels
+# Keep only valid labels
 df = df[df['label'].isin([0, 1])]
 
 # Convert to int
 df['label'] = df['label'].astype(int)
 
-# Debug print (for Render logs)
-print("Unique labels in dataset:", df['label'].unique())
-print("Label counts:\n", df['label'].value_counts())
+# Check if both classes exist
+if df['label'].nunique() < 2:
+    raise ValueError("Dataset must contain both FAKE and REAL labels in news.csv")
 
-# Features and target
 X = df['text']
 y = df['label']
 
-# Train/test split
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
 
-# Vectorizer
 vectorizer = TfidfVectorizer(stop_words='english', max_df=0.7)
-
 X_train_vect = vectorizer.fit_transform(X_train)
 
-# Model
 model = LogisticRegression(max_iter=1000)
 model.fit(X_train_vect, y_train)
 
-# ---------------------------
-# Routes
-# ---------------------------
 @app.route("/", methods=["GET", "POST"])
 def home():
     prediction = None
-
     if request.method == "POST":
         news = request.form["news"]
         cleaned_news = clean_text(news)
         news_vect = vectorizer.transform([cleaned_news])
         pred = model.predict(news_vect)[0]
         prediction = "REAL NEWS" if pred == 1 else "FAKE NEWS"
-
     return render_template("index.html", prediction=prediction)
 
 if __name__ == "__main__":
