@@ -1,77 +1,86 @@
-from flask import Flask, render_template, request
 import pandas as pd
 import re
+from flask import Flask, render_template, request
+from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.utils import shuffle
 
 app = Flask(__name__)
 
-# -----------------------------
+# ---------------------------
 # Text cleaning function
-# -----------------------------
+# ---------------------------
 def clean_text(text):
     text = str(text).lower()
-    text = re.sub(r'http\S+', '', text)
-    text = re.sub(r'[^a-zA-Z\s]', '', text)
-    text = re.sub(r'\s+', ' ', text).strip()
+    text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return text
 
-# -----------------------------
+# ---------------------------
 # Load dataset
-# -----------------------------
-df = pd.read_csv("fake_news_dataset.csv")  # Make sure this CSV has 'text' and 'label' columns
-df['text'] = df['text'].fillna("").apply(clean_text)
-df['label'] = df['label'].fillna("FAKE")
+# ---------------------------
+df = pd.read_csv("news.csv")
 
-# Shuffle the dataset to avoid bias
-df = shuffle(df, random_state=42)
+# Make sure missing values don't break
+df['title'] = df['title'].fillna("")
+df['text'] = df['text'].fillna("")
 
-# Convert labels to numeric: REAL=1, FAKE=0
-df['label_num'] = df['label'].apply(lambda x: 1 if str(x).upper() == "REAL" else 0)
+# Combine title + text
+df['text'] = (df['title'] + " " + df['text']).apply(clean_text)
 
-# -----------------------------
-# Train-test split
-# -----------------------------
+# Handle label safely
+df['label'] = df['label'].astype(str).str.strip().str.upper()
+
+# Convert labels
+df['label'] = df['label'].replace({
+    'FAKE': 0,
+    'REAL': 1,
+    '0': 0,
+    '1': 1
+})
+
+# Remove invalid labels
+df = df[df['label'].isin([0, 1])]
+
+# Convert to int
+df['label'] = df['label'].astype(int)
+
+# Debug print (for Render logs)
+print("Unique labels in dataset:", df['label'].unique())
+print("Label counts:\n", df['label'].value_counts())
+
+# Features and target
+X = df['text']
+y = df['label']
+
+# Train/test split
 X_train, X_test, y_train, y_test = train_test_split(
-    df['text'], df['label_num'], test_size=0.2, random_state=42, stratify=df['label_num']
+    X, y, test_size=0.2, random_state=42, stratify=y
 )
 
-# -----------------------------
-# TF-IDF Vectorization + Logistic Regression
-# -----------------------------
-vectorizer = TfidfVectorizer(stop_words='english', max_features=5000)
-X_train_vect = vectorizer.fit_transform(X_train)
-X_test_vect = vectorizer.transform(X_test)
+# Vectorizer
+vectorizer = TfidfVectorizer(stop_words='english', max_df=0.7)
 
+X_train_vect = vectorizer.fit_transform(X_train)
+
+# Model
 model = LogisticRegression(max_iter=1000)
 model.fit(X_train_vect, y_train)
 
-# -----------------------------
-# Flask route
-# -----------------------------
+# ---------------------------
+# Routes
+# ---------------------------
 @app.route("/", methods=["GET", "POST"])
 def home():
     prediction = None
-    confidence = None
 
     if request.method == "POST":
-        user_input = request.form["news"]
-        cleaned = clean_text(user_input)
-        vect_text = vectorizer.transform([cleaned])
+        news = request.form["news"]
+        cleaned_news = clean_text(news)
+        news_vect = vectorizer.transform([cleaned_news])
+        pred = model.predict(news_vect)[0]
+        prediction = "REAL NEWS" if pred == 1 else "FAKE NEWS"
 
-        pred = model.predict(vect_text)[0]
-        proba = model.predict_proba(vect_text)[0]
-
-        if pred == 1:
-            prediction = "REAL NEWS"
-            confidence = round(proba[1] * 100, 2)
-        else:
-            prediction = "FAKE NEWS"
-            confidence = round(proba[0] * 100, 2)
-
-    return render_template("index.html", prediction=prediction, confidence=confidence)
+    return render_template("index.html", prediction=prediction)
 
 if __name__ == "__main__":
     app.run(debug=True)
