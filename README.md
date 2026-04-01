@@ -2,7 +2,7 @@
 
 An AI-powered web application that detects whether a given news headline or short news text is **Real** or **Fake** using **Natural Language Processing (NLP)** and **Machine Learning (ML)**.
 
-🚀 **Live Demo:** https://ai-fake-news-detection-4.onrender.com
+🚀 **Live Demo:** https://ai-fake-news-detection-3.onrender.com
 
 ---
 
